@@ -1366,7 +1366,109 @@ public class Main {
 In customer support systems, using the **Facade Design Pattern** significantly enhances the ease of use for support agents, making it simpler to interact with various tools like Zendesk, Freshdesk, and KnowledgeBase systems. By hiding the complexity behind a simple interface, the design pattern helps improve productivity, reduces errors, and makes the system easier to maintain.
 
 ### Flyweight
+### Flyweight Design Pattern
 
+The **Flyweight Design Pattern** is a structural design pattern that focuses on minimizing memory usage by sharing common parts of the state between multiple objects. It is especially useful when dealing with a large number of objects that have some shared intrinsic state but also some unique extrinsic state. The main idea is to avoid storing the common part of the state for each object and instead share it across many objects.
+
+In essence, the Flyweight pattern breaks objects into two parts:
+1. **Intrinsic State**: The part of the state that is shared and immutable across all instances of the object.
+2. **Extrinsic State**: The part of the state that is unique to each instance and can vary depending on the context.
+
+By using the Flyweight pattern, you save memory, as you don’t need to duplicate the intrinsic state for each object instance.
+
+### Why Use the Flyweight Design Pattern in Help Desk/Customer Support?
+
+In a help desk or customer support system, you can face many instances of similar requests or tickets with shared states, such as:
+- Request categories (e.g., Billing, Technical Support, etc.)
+- Common solutions or responses
+- Frequently used templates for tickets
+- Shared information across multiple support agents
+
+The Flyweight pattern can be used to manage these shared components more efficiently by ensuring they are not duplicated unnecessarily, thus improving performance and reducing memory usage.
+
+**Benefits in Help Desk/Customer Support:**
+- **Reduced Memory Usage**: Instead of creating new objects for each request with the same data, shared objects can be reused.
+- **Better Performance**: When handling a large number of requests, the system can be more responsive since it reuses existing objects instead of creating new ones.
+- **Efficient Data Management**: You can centralize common information and resources like templates, support responses, and ticket categories.
+
+### Example: Working Java Code for ShipBob Using Flyweight Pattern
+
+Let's assume ShipBob provides an inventory management and logistics platform, and we want to use the Flyweight pattern to optimize memory usage when handling various orders. For simplicity, we will assume that each order has a shared state (like product information) and an extrinsic state (like order tracking details).
+
+**Step 1: Create the Flyweight Interface**
+
+```java
+public interface Order {
+    void processOrder(String orderDetails);
+}
+```
+
+**Step 2: Concrete Flyweight (Shared State)**
+
+```java
+public class ProductOrder implements Order {
+    private final String productName; // Shared state
+
+    public ProductOrder(String productName) {
+        this.productName = productName;
+    }
+
+    @Override
+    public void processOrder(String orderDetails) {
+        System.out.println("Processing order for: " + productName + " with details: " + orderDetails);
+    }
+}
+```
+
+**Step 3: Flyweight Factory**
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class OrderFactory {
+    private static final Map<String, Order> productOrders = new HashMap<>();
+
+    public static Order getProductOrder(String productName) {
+        if (!productOrders.containsKey(productName)) {
+            productOrders.put(productName, new ProductOrder(productName));
+        }
+        return productOrders.get(productName);
+    }
+}
+```
+
+**Step 4: Client Code**
+
+```java
+public class ShipBobClient {
+    public static void main(String[] args) {
+        // Shared intrinsic state for the product
+        Order order1 = OrderFactory.getProductOrder("Laptop");
+        Order order2 = OrderFactory.getProductOrder("Laptop"); // This will reuse the same object
+
+        // Extrinsic state for each order
+        order1.processOrder("Order ID: 001, Quantity: 2, Shipping: Standard");
+        order2.processOrder("Order ID: 002, Quantity: 1, Shipping: Expedited");
+        
+        // Order with different product
+        Order order3 = OrderFactory.getProductOrder("Smartphone");
+        order3.processOrder("Order ID: 003, Quantity: 5, Shipping: Same Day");
+    }
+}
+```
+
+### Explanation of Code:
+- **ProductOrder** represents a concrete implementation of the **Flyweight** interface, with the **product name** as the intrinsic state shared between orders.
+- The **OrderFactory** class manages the creation and reuse of shared `ProductOrder` objects. If an order with the same product name exists, it returns the same object from the map, otherwise, it creates a new one.
+- In **ShipBobClient**, different orders are processed using shared product information, but the order details (quantity, shipping type) are unique to each instance, representing the extrinsic state.
+
+### Key Takeaways:
+- **Intrinsic state** (product name) is shared and only one object is created for each unique product name.
+- **Extrinsic state** (order details) is passed as a parameter when processing the order and is unique for each order.
+- The **Flyweight pattern** allows you to handle a large number of orders more efficiently by reusing the product objects while keeping memory usage low.
+
+This pattern is ideal for systems like ShipBob’s where there are a large number of orders, many of which have similar product information but differ in details like quantity, shipping, or customer data.
 ### Proxy
 
 ---
