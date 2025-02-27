@@ -27,7 +27,9 @@
     - [Strategy](#strategy)
     - [Template Method](#template-method)
     - [Visitor](#visitor)
+  
 
+-[What Are the SOLID Principles?](#What-Are-the-SOLID-Principles)
 ---
 
 ## Creational Patterns
@@ -2229,3 +2231,294 @@ In conclusion, the **Observer Design Pattern** is extremely useful in managing c
 ### Template Method
 
 ### Visitor
+
+
+### What Are the SOLID Principles?
+
+Below is an explanation of the SOLID principles along with simple Java examples. These examples are tailored for systems like Warehouse Management, Inventory Management, Supply Chain Management, Order Management, Project Management, Asset Management, and Financial/ERP systems. The goal is to show you how these principles make your code more modular, easier to extend, and maintainable—all concepts that are especially valuable in large, enterprise-level applications.
+
+---
+
+## What Are the SOLID Principles?
+
+**SOLID** is an acronym for five design principles that help you build software that is:
+- **S**ingle Responsibility: Each class should have one, and only one, reason to change.
+- **O**pen/Closed: Classes should be open for extension but closed for modification.
+- **L**iskov Substitution: Subclasses should be substitutable for their base classes.
+- **I**nterface Segregation: Many client-specific interfaces are better than one general-purpose interface.
+- **D**ependency Inversion: Depend on abstractions (e.g., interfaces) rather than concrete implementations.
+
+For a layman engineer, think of these principles as guidelines that help keep your code “clean” and “organized,” making it easier to add new features or fix bugs later on.
+
+---
+
+## 1. Single Responsibility Principle (SRP)
+
+**Layman Explanation:**  
+A class should do one thing only. If you have a class doing multiple jobs (like handling inventory and logging), it’s harder to change one job without affecting the other.
+
+**Example in a Warehouse Management System:**
+
+Imagine you have two responsibilities in your warehouse system: managing inventory and logging actions. Instead of mixing these responsibilities in one class, split them:
+
+```java
+// Handles inventory-related operations only.
+public class InventoryManager {
+    public void addItem(String item) {
+        // Logic to add an item to inventory
+        System.out.println("Item added: " + item);
+    }
+    
+    public void removeItem(String item) {
+        // Logic to remove an item from inventory
+        System.out.println("Item removed: " + item);
+    }
+}
+
+// Handles logging actions only.
+public class Logger {
+    public void log(String message) {
+        System.out.println("Log: " + message);
+    }
+}
+
+// The Warehouse Management System uses both classes.
+public class WarehouseManagementSystem {
+    private InventoryManager inventoryManager = new InventoryManager();
+    private Logger logger = new Logger();
+    
+    public void addNewItem(String item) {
+        inventoryManager.addItem(item);
+        logger.log("Added new item: " + item);
+    }
+    
+    public static void main(String[] args) {
+        WarehouseManagementSystem wms = new WarehouseManagementSystem();
+        wms.addNewItem("Widget");
+    }
+}
+```
+
+**Application Context:**
+- **WMS, Inventory Management:** Each module (e.g., inventory, logging) has a single, clear responsibility.
+
+---
+
+## 2. Open/Closed Principle (OCP)
+
+**Layman Explanation:**  
+Your classes should allow new features to be added without changing existing code. This minimizes the risk of introducing bugs when you extend the system.
+
+**Example in an Inventory Management System:**
+
+Suppose you need different ways to calculate stock levels. Instead of modifying an existing class every time, define an interface and create separate implementations.
+
+```java
+// Define the abstraction.
+public interface StockCalculator {
+    int calculateStock();
+}
+
+// Basic calculation strategy.
+public class BasicStockCalculator implements StockCalculator {
+    @Override
+    public int calculateStock() {
+        // Basic stock calculation logic.
+        return 100;
+    }
+}
+
+// Advanced calculation strategy (new feature) for a Supply Chain Management System.
+public class AdvancedStockCalculator implements StockCalculator {
+    @Override
+    public int calculateStock() {
+        // More advanced stock calculation logic.
+        return 150;
+    }
+}
+
+// Inventory management uses a StockCalculator without knowing the concrete implementation.
+public class InventoryManagementSystem {
+    private StockCalculator stockCalculator;
+    
+    // Use dependency injection to allow different calculators.
+    public InventoryManagementSystem(StockCalculator stockCalculator) {
+        this.stockCalculator = stockCalculator;
+    }
+    
+    public void displayStock() {
+        System.out.println("Stock: " + stockCalculator.calculateStock());
+    }
+    
+    public static void main(String[] args) {
+        // Easily switch to a new stock calculator without modifying InventoryManagementSystem.
+        InventoryManagementSystem ims = new InventoryManagementSystem(new AdvancedStockCalculator());
+        ims.displayStock();
+    }
+}
+```
+
+**Application Context:**
+- **Inventory, Supply Chain Management:** Easily extend functionality (like new calculation strategies) without altering tested code.
+
+---
+
+## 3. Liskov Substitution Principle (LSP)
+
+**Layman Explanation:**  
+Subclasses should be usable in place of their parent class without causing errors. This ensures that derived classes follow the contract set by their base class.
+
+**Example in an Order Management System:**
+
+Imagine a basic order class and a specialized online order class. Anywhere an `Order` is expected, an `OnlineOrder` should work without issues.
+
+```java
+// Base class for orders.
+public class Order {
+    public void process() {
+        System.out.println("Processing order...");
+    }
+}
+
+// Specialized order for online transactions.
+public class OnlineOrder extends Order {
+    @Override
+    public void process() {
+        System.out.println("Processing online order...");
+    }
+}
+
+// OrderManager works with any Order type.
+public class OrderManager {
+    public void processOrder(Order order) {
+        order.process();
+    }
+}
+
+public class OMSDemo {
+    public static void main(String[] args) {
+        Order standardOrder = new Order();
+        Order onlineOrder = new OnlineOrder();
+        
+        OrderManager manager = new OrderManager();
+        manager.processOrder(standardOrder);  // Output: Processing order...
+        manager.processOrder(onlineOrder);      // Output: Processing online order...
+    }
+}
+```
+
+**Application Context:**
+- **Order Management, Supply Chain Management:** Use polymorphism to ensure different types of orders behave as expected.
+
+---
+
+## 4. Interface Segregation Principle (ISP)
+
+**Layman Explanation:**  
+Don't force a class to implement interfaces it doesn’t use. Instead, create smaller, more focused interfaces that are tailored to the client's needs.
+
+**Example in an Order Management System:**
+
+Split a bulky interface into smaller ones so that classes only implement what they need.
+
+```java
+// Interface for order creation.
+public interface OrderCreation {
+    void createOrder();
+}
+
+// Interface for order tracking.
+public interface OrderTracking {
+    void trackOrder();
+}
+
+// A service that only creates orders.
+public class SimpleOrderService implements OrderCreation {
+    @Override
+    public void createOrder() {
+        System.out.println("Creating order...");
+    }
+}
+
+// A service that handles both creation and tracking.
+public class FullOrderService implements OrderCreation, OrderTracking {
+    @Override
+    public void createOrder() {
+        System.out.println("Creating order...");
+    }
+    
+    @Override
+    public void trackOrder() {
+        System.out.println("Tracking order...");
+    }
+}
+```
+
+**Application Context:**
+- **OMS, Project Management Systems:** Allow different modules or services to only implement the features they require.
+
+---
+
+## 5. Dependency Inversion Principle (DIP)
+
+**Layman Explanation:**  
+High-level modules should not depend on low-level modules. Instead, both should depend on abstractions (interfaces). This allows you to swap out implementations without changing the higher-level code.
+
+**Example in an Asset Management or Financial/ERP System:**
+
+Instead of a class directly instantiating a concrete logger, it should depend on a logger interface. This makes it easier to change the logging mechanism later.
+
+```java
+// Logger interface abstraction.
+public interface Logger {
+    void log(String message);
+}
+
+// Concrete logger that writes to the console.
+public class ConsoleLogger implements Logger {
+    @Override
+    public void log(String message) {
+        System.out.println("Console log: " + message);
+    }
+}
+
+// Asset manager depends on the Logger abstraction.
+public class AssetManager {
+    private Logger logger;
+    
+    // Dependency is injected via the constructor.
+    public AssetManager(Logger logger) {
+        this.logger = logger;
+    }
+    
+    public void manageAsset(String asset) {
+        // Asset management logic here.
+        logger.log("Managing asset: " + asset);
+    }
+}
+
+// Usage in a Financial/ERP system.
+public class ERPSystem {
+    public static void main(String[] args) {
+        // Swap out logger easily if needed.
+        Logger logger = new ConsoleLogger();
+        AssetManager assetManager = new AssetManager(logger);
+        assetManager.manageAsset("Company Vehicle");
+    }
+}
+```
+
+**Application Context:**
+- **Asset Management, Financial/ERP Systems:** Relying on abstractions makes your code more flexible and easier to maintain when swapping out components like logging, data access, or external services.
+
+---
+
+## Summary
+
+- **SRP:** Each class has one responsibility (e.g., separate inventory management from logging in a Warehouse Management System).
+- **OCP:** Classes can be extended without changing existing code (e.g., adding new stock calculation strategies in an Inventory Management System).
+- **LSP:** Subclasses can replace their parent classes without issue (e.g., using `OnlineOrder` wherever `Order` is expected in an Order Management System).
+- **ISP:** Use small, client-specific interfaces instead of one large interface (e.g., splitting order operations into creation and tracking in an OMS).
+- **DIP:** Depend on abstractions, not concrete implementations (e.g., injecting a Logger interface in an Asset Management or ERP system).
+
+By applying these SOLID principles in your enterprise applications—whether it's a Warehouse Management System, Inventory Management System, Supply Chain Management System, Order Management System, Project Management System, Asset Management System, or a Financial/ERP system—you ensure your code remains clean, modular, and adaptable as business requirements change.
