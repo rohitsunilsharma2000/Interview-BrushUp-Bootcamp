@@ -27,7 +27,9 @@
     - [Strategy](#strategy)
     - [Template Method](#template-method)
     - [Visitor](#visitor)
+  
 
+-[What Are the SOLID Principles?](#What-Are-the-SOLID-Principles)
 ---
 
 ## Creational Patterns
@@ -2229,3 +2231,92 @@ In conclusion, the **Observer Design Pattern** is extremely useful in managing c
 ### Template Method
 
 ### Visitor
+
+
+### What Are the SOLID Principles?
+An **immutable class** is a class whose instances (objects) cannot be modified once they are created. This means that once you set the state (values of its fields) during object creation, you cannot change them. Immutable classes are especially useful in multithreaded programming because they are inherently thread-safe.
+
+Below is an example of an immutable class in Java along with a detailed explanation:
+
+---
+
+### Immutable Class Example: `ImmutablePerson`
+
+```java
+public final class ImmutablePerson {
+    
+    // All fields are private and final so they can be set only once.
+    private final String name;
+    private final int age;
+    
+    // Constructor to initialize all fields.
+    public ImmutablePerson(String name, int age) {
+        // You can perform validation here if necessary.
+        this.name = name;
+        this.age = age;
+    }
+    
+    // Getter methods provide read-only access.
+    public String getName() {
+        return name;
+    }
+    
+    public int getAge() {
+        return age;
+    }
+    
+    // No setter methods are provided.
+    
+    // Optionally, you can override toString(), equals(), and hashCode() for better usability.
+    @Override
+    public String toString() {
+        return "ImmutablePerson{name='" + name + "', age=" + age + "}";
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ImmutablePerson that = (ImmutablePerson) o;
+        return age == that.age && name.equals(that.name);
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + age;
+        return result;
+    }
+    
+    // If you have mutable fields (like a Date or a collection), you must perform defensive copying.
+}
+```
+
+---
+
+### Explanation for a Layman Engineer
+
+1. **Final Class:**  
+   The class is declared as `final`, meaning it cannot be subclassed. This prevents any subclass from altering its immutable behavior.
+
+2. **Final Fields:**  
+   The fields `name` and `age` are declared as `private final`. Once they are assigned a value in the constructor, they cannot be changed.
+
+3. **No Setters:**  
+   The class does not provide any setter methods. This means that after an object is constructed, there is no way to change its state.
+
+4. **Constructor Initialization:**  
+   All properties of the object are set through the constructor at the time of object creation. This is the only place where the fields are assigned their values.
+
+5. **Defensive Copying (Not Needed Here):**  
+   If your immutable class contains mutable objects (like a `Date` or a `List`), you must create defensive copies in the constructor and in the getters to prevent external modification. For example, if you had a `Date birthDate`, you would copy it using `new Date(birthDate.getTime())`.
+
+---
+
+### When to Use Immutable Classes
+
+- **Thread Safety:** Immutable objects are automatically thread-safe, as their state cannot change after creation.
+- **Simplified Debugging:** Since the state cannot change, you don’t have to worry about unexpected side-effects from changes elsewhere in the code.
+- **Safe Sharing:** They can be shared freely without concerns that their state will be altered by other parts of the program.
+
+By following these principles, the `ImmutablePerson` class remains simple, secure, and predictable, making it a great example of how immutability is implemented in Java.
