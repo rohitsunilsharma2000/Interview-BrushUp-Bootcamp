@@ -1470,7 +1470,138 @@ public class ShipBobClient {
 
 This pattern is ideal for systems like ShipBob’s where there are a large number of orders, many of which have similar product information but differ in details like quantity, shipping, or customer data.
 ### Proxy
+### Proxy Design Pattern
 
+The **Proxy Design Pattern** is a structural design pattern that provides an object representing another object. It acts as an intermediary or placeholder for another object, controlling access to it. This pattern is useful when you need to manage and control access to a particular object, especially when it is expensive to create or manage directly.
+
+There are different types of proxies:
+1. **Virtual Proxy**: Used when the object is resource-intensive or expensive to create. The proxy delays the creation or loading of the real object until it is actually needed.
+2. **Remote Proxy**: Used to represent an object in a different address space, often in distributed systems or client-server architectures.
+3. **Protective Proxy**: Controls access to the real object, providing security features like access restrictions.
+4. **Cache Proxy**: Caches the result of operations and returns the cached result instead of performing expensive operations repeatedly.
+
+### Why Use the Proxy Design Pattern in Event Management?
+
+In event management systems like **Eventbrite** and **Cvent**, you may need to manage access to various resources or functionalities, such as event data, ticket sales, or attendee information. Using a proxy can help in situations where you need to:
+- **Lazy Initialization**: Load expensive resources (e.g., attendee data, event details) only when they are actually needed.
+- **Access Control**: Restrict access to sensitive data (like payment information or personal details) based on user roles (organizer, attendee, admin).
+- **Caching**: Improve performance by caching frequently requested data, like event details or ticket availability.
+- **Network Access**: Represent remote resources, such as data stored on a cloud server or database, in a way that hides the complexity of network communication.
+
+### Example: Working Java Code for Event Management System (Eventbrite/Cvent) Using Proxy Design Pattern
+
+Let's use a **Virtual Proxy** in this example to simulate a scenario where event details (like ticket availability or attendee information) are loaded lazily. This is useful when event data might be large, and we don't want to load it until it’s required.
+
+**Step 1: Create the Subject Interface (Event Details)**
+
+```java
+public interface Event {
+    void displayEventDetails();  // Method to display event details
+}
+```
+
+**Step 2: Real Subject (Event) Implementation**
+
+```java
+public class RealEvent implements Event {
+    private String eventName;
+    private String eventDescription;
+    private String eventLocation;
+    
+    // Constructor simulating expensive initialization
+    public RealEvent(String eventName, String eventDescription, String eventLocation) {
+        this.eventName = eventName;
+        this.eventDescription = eventDescription;
+        this.eventLocation = eventLocation;
+        
+        // Simulating a heavy task like fetching data from a database
+        loadEventData();
+    }
+    
+    private void loadEventData() {
+        System.out.println("Loading event data... This might take a while.");
+        try {
+            Thread.sleep(2000);  // Simulating delay
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @Override
+    public void displayEventDetails() {
+        System.out.println("Event: " + eventName);
+        System.out.println("Description: " + eventDescription);
+        System.out.println("Location: " + eventLocation);
+    }
+}
+```
+
+**Step 3: Proxy Class (Virtual Proxy)**
+
+```java
+public class EventProxy implements Event {
+    private RealEvent realEvent;
+    private String eventName;
+    private String eventDescription;
+    private String eventLocation;
+
+    public EventProxy(String eventName, String eventDescription, String eventLocation) {
+        this.eventName = eventName;
+        this.eventDescription = eventDescription;
+        this.eventLocation = eventLocation;
+    }
+    
+    @Override
+    public void displayEventDetails() {
+        // Only load the real event data when necessary
+        if (realEvent == null) {
+            realEvent = new RealEvent(eventName, eventDescription, eventLocation);
+        }
+        realEvent.displayEventDetails();
+    }
+}
+```
+
+**Step 4: Client Code**
+
+```java
+public class EventClient {
+    public static void main(String[] args) {
+        // Create a Proxy object for an event (Eventbrite/Cvent)
+        Event event = new EventProxy("Tech Conference", "A conference about the latest in tech.", "New York City");
+
+        // Display event details, which will trigger loading the real event data
+        event.displayEventDetails();
+
+        // You can reuse the proxy object, and the data will be loaded once
+        System.out.println("\nReusing the event proxy...");
+        event.displayEventDetails();
+    }
+}
+```
+
+### Explanation of Code:
+- **Event Interface**: Defines the method `displayEventDetails()`, which is common to both the real event and the proxy.
+- **RealEvent Class**: Simulates an event with detailed information, including a simulated heavy task (like fetching data from a database) when creating the event. This is a typical scenario where you don’t want to load all event details unless absolutely necessary.
+- **EventProxy Class**: Acts as the proxy for the `RealEvent`. It holds the data required to create the `RealEvent` but doesn’t load the real event until the `displayEventDetails()` method is called. This demonstrates lazy initialization (virtual proxy).
+- **Client Code**: In the `EventClient` class, the proxy object is used to manage access to the real event data. The event details are loaded only when the `displayEventDetails()` method is called for the first time.
+
+### Key Takeaways:
+- **Lazy Initialization**: The `RealEvent` is only created and initialized when `displayEventDetails()` is called for the first time, avoiding the overhead if the event details are never needed.
+- **Efficiency**: This pattern is especially helpful when dealing with large datasets or operations that are expensive to perform upfront (e.g., fetching data from a remote server).
+- **Access Control**: If required, additional proxies can be used to restrict access based on user roles or permissions. For example, certain event details might only be available to event organizers or admins.
+
+### Why Use the Proxy Design Pattern in Event Management Systems like Eventbrite and Cvent?
+
+- **Lazy Loading**: In systems like Eventbrite or Cvent, event data, ticket availability, or attendee lists might be large or come from a remote source (like a database or cloud). The proxy pattern can help load this data only when it's needed, improving initial load times and performance.
+
+- **Performance Optimization**: By using proxies, frequently accessed data (such as event descriptions or ticket prices) can be cached in memory, reducing the need to perform time-consuming operations like database queries or API calls.
+
+- **Access Control and Security**: Proxies can be used to enforce security policies, ensuring that sensitive data (like payment information or personal details) is only accessible by authorized users, like event organizers or admins.
+
+- **Remote Access**: For cloud-based event management platforms, a proxy can abstract the complexity of remote server access, making it easier to manage and communicate with different servers hosting the event data.
+
+The Proxy Design Pattern helps in improving performance, optimizing resource usage, and enforcing access control, making it highly suitable for complex, distributed event management systems.
 ---
 
 ## Behavioral Patterns
