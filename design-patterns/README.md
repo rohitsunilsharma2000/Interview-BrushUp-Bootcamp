@@ -949,198 +949,301 @@ public class EmailMarketingPlatform {
 In this example, the **Bridge pattern** allows the email marketing platform to separate the abstraction of campaign sending from the concrete implementations of email services. This makes the platform flexible and easier to maintain, as you can introduce new email services or change the campaign structure without impacting the other parts of the system. The **Adapter pattern** could be used in a similar context, but it's more suited for converting incompatible interfaces, whereas the **Bridge pattern** is ideal for decoupling abstraction and implementation.
 
 ### Composite
+### Composite Design Pattern
 
-### Bridge Design Pattern Overview:
+The **Composite Design Pattern** is a structural pattern that is used to treat individual objects and compositions of objects uniformly. It allows you to compose objects into tree-like structures to represent part-whole hierarchies. This pattern is particularly useful when you need to work with complex tree structures, and you want to treat both individual objects and groups of objects in the same way.
 
-The **Bridge Design Pattern** is a structural design pattern that is used to separate the abstraction (interface) from the implementation. This allows the two to vary independently, making the system more flexible and easier to maintain.
+In the context of the Composite pattern:
+- **Leaf**: Represents the basic object, which doesn’t have any children.
+- **Composite**: Represents an object that contains other objects (both leaf and other composites).
 
-In the Bridge pattern, there are two key components:
+Both **Leaf** and **Composite** share the same interface, so the client can treat individual objects and composite objects in the same way.
 
-1. **Abstraction** – This defines the interface for the higher-level control. It usually contains a reference to an object that implements the **Implementor** interface.
+### Why Use the Composite Design Pattern in Document Management (e.g., Google Workspace)?
 
-2. **Implementor** – This defines the interface for the lower-level, platform-specific operations. It doesn't define the complete behavior, but rather the components that the Abstraction relies on.
+The Composite Design Pattern is particularly useful in **Document Management** because:
+1. **Hierarchical Structure**: In a document management system, documents can have various components, such as paragraphs, sections, tables, images, etc. These components can be treated uniformly as individual objects or collections.
+2. **Flexible Representation**: Documents may be simple or may have nested sub-documents. Using the Composite pattern allows you to handle both simple and complex documents using the same interface.
+3. **Ease of Manipulation**: You can easily perform operations such as editing, adding, or deleting items (e.g., text, images, tables) in documents that may contain other documents.
+4. **Unified Operations**: In a system like Google Workspace, where documents can have varied content types (e.g., Docs, Sheets, Slides), the Composite Pattern allows for treating all elements (text, tables, slides, etc.) as a part of a unified structure.
 
-By separating the abstraction from the implementation, we can change either one without affecting the other.
+### Example of the Composite Design Pattern in Document Management
 
-### Why Use the Bridge Design Pattern in Document Management (Google Workspace)?
+Let’s implement a simple Java example to demonstrate how the **Composite Design Pattern** could be applied to a document management system in the context of Google Workspace. The idea is to simulate documents that may contain other documents or various components like paragraphs, images, and tables.
 
-In the context of **Document Management** and platforms like **Google Workspace**, the **Bridge Design Pattern** can be particularly useful in scenarios where:
-
-- **Cross-platform compatibility**: If Google Docs or Google Sheets needs to be supported across multiple platforms (such as Android, iOS, Web), you can use the Bridge pattern to separate the abstraction of document management features (e.g., editing, saving) from the platform-specific implementations (e.g., Google Drive integration, offline support).
-
-- **Modularization and Scalability**: Google Workspace services are evolving rapidly, and the Bridge pattern allows for easier updates and scaling. You can change the implementation of the backend (e.g., from Google Drive API to another cloud storage system) without affecting the document management system's interface.
-
-- **Extending functionality**: As new features are added (e.g., document sharing, version control), the Bridge pattern allows you to implement these features with minimal disruption to existing code, as the abstraction layer can be extended while keeping the implementation layer separate.
-
-### Example: Using the Bridge Pattern in Document Management (Google Workspace)
-
-Let’s say we want to create a simple document management system where we can edit and save documents, but we need to support multiple platforms. We’ll separate the abstraction of document management (e.g., editing) from the implementation (e.g., saving to Google Drive, saving to Dropbox, or saving locally).
-
-Here is an example of how we could implement this pattern in **Java**:
-
-#### Step 1: Define the `Document` Abstraction
-
-This represents the higher-level abstraction for document management.
+Here’s the Java code for a simple **Document Management System** using the Composite Pattern:
 
 ```java
-// Abstraction
-public abstract class Document {
-    protected Storage storage;
+import java.util.ArrayList;
+import java.util.List;
 
-    // Constructor injecting the Implementor (Storage)
-    public Document(Storage storage) {
-        this.storage = storage;
-    }
-
-    public abstract void edit();
-    public abstract void save();
-}
-```
-
-#### Step 2: Define the `Storage` Implementor Interface
-
-This is the interface for the lower-level implementation (e.g., saving to Google Drive, Dropbox, or local storage).
-
-```java
-// Implementor
-public interface Storage {
-    void saveDocument(String content);
-}
-```
-
-#### Step 3: Concrete Implementors (e.g., Google Drive, Dropbox)
-
-These are the specific implementations of the `Storage` interface.
-
-```java
-// Concrete Implementor - GoogleDriveStorage
-public class GoogleDriveStorage implements Storage {
-    @Override
-    public void saveDocument(String content) {
-        System.out.println("Saving document to Google Drive: " + content);
-    }
+// Component Interface
+interface DocumentComponent {
+    void display();
 }
 
-// Concrete Implementor - DropboxStorage
-public class DropboxStorage implements Storage {
-    @Override
-    public void saveDocument(String content) {
-        System.out.println("Saving document to Dropbox: " + content);
-    }
-}
-
-// Concrete Implementor - LocalStorage
-public class LocalStorage implements Storage {
-    @Override
-    public void saveDocument(String content) {
-        System.out.println("Saving document locally: " + content);
-    }
-}
-```
-
-#### Step 4: Concrete Document Classes
-
-These classes represent different types of documents that need to be edited and saved.
-
-```java
-// Refined Abstraction - WordDocument
-public class WordDocument extends Document {
+// Leaf: Represents a simple Document Component (e.g., Text, Image, etc.)
+class Text implements DocumentComponent {
     private String content;
-
-    public WordDocument(Storage storage, String content) {
-        super(storage);
+    
+    public Text(String content) {
         this.content = content;
     }
 
     @Override
-    public void edit() {
-        System.out.println("Editing Word Document: " + content);
-    }
-
-    @Override
-    public void save() {
-        System.out.println("Saving Word Document...");
-        storage.saveDocument(content);
+    public void display() {
+        System.out.println("Text: " + content);
     }
 }
 
-// Refined Abstraction - SpreadsheetDocument
-public class SpreadsheetDocument extends Document {
-    private String content;
-
-    public SpreadsheetDocument(Storage storage, String content) {
-        super(storage);
-        this.content = content;
+// Leaf: Represents another type of Document Component (e.g., Image, Table, etc.)
+class Image implements DocumentComponent {
+    private String imageName;
+    
+    public Image(String imageName) {
+        this.imageName = imageName;
     }
 
     @Override
-    public void edit() {
-        System.out.println("Editing Spreadsheet: " + content);
-    }
-
-    @Override
-    public void save() {
-        System.out.println("Saving Spreadsheet Document...");
-        storage.saveDocument(content);
+    public void display() {
+        System.out.println("Image: " + imageName);
     }
 }
-```
 
-#### Step 5: Client Code
+// Composite: Represents a Document or a Container for multiple Document Components
+class Document implements DocumentComponent {
+    private String title;
+    private List<DocumentComponent> components = new ArrayList<>();
 
-Here’s how you could use the Bridge pattern to create a document and save it to different platforms (e.g., Google Drive, Dropbox, local storage).
+    public Document(String title) {
+        this.title = title;
+    }
 
-```java
-public class BridgePatternExample {
+    public void addComponent(DocumentComponent component) {
+        components.add(component);
+    }
+
+    public void removeComponent(DocumentComponent component) {
+        components.remove(component);
+    }
+
+    @Override
+    public void display() {
+        System.out.println("Document Title: " + title);
+        for (DocumentComponent component : components) {
+            component.display();
+        }
+    }
+}
+
+public class CompositePatternExample {
     public static void main(String[] args) {
-        // Create storage implementors
-        Storage googleDriveStorage = new GoogleDriveStorage();
-        Storage dropboxStorage = new DropboxStorage();
-        Storage localStorage = new LocalStorage();
-
-        // Create documents with different storage options
-        Document wordDocument1 = new WordDocument(googleDriveStorage, "Google Docs Content");
-        Document wordDocument2 = new WordDocument(dropboxStorage, "Dropbox Docs Content");
-        Document spreadsheet1 = new SpreadsheetDocument(localStorage, "Local Spreadsheet Content");
-
-        // Edit and save documents
-        wordDocument1.edit();
-        wordDocument1.save();
-
-        wordDocument2.edit();
-        wordDocument2.save();
-
-        spreadsheet1.edit();
-        spreadsheet1.save();
+        // Create individual components (Leaf objects)
+        DocumentComponent text1 = new Text("This is the first paragraph of the document.");
+        DocumentComponent text2 = new Text("This is the second paragraph with more details.");
+        DocumentComponent image1 = new Image("image1.jpg");
+        
+        // Create a document (Composite)
+        Document document = new Document("My Google Document");
+        
+        // Add components (text and images) to the document
+        document.addComponent(text1);
+        document.addComponent(text2);
+        document.addComponent(image1);
+        
+        // Display the document structure
+        document.display();
+        
+        // Create another nested document (Composite inside Composite)
+        Document subDocument = new Document("Subdocument");
+        subDocument.addComponent(new Text("This is a subdocument with some content."));
+        
+        // Add subdocument to the main document
+        document.addComponent(subDocument);
+        
+        // Display the updated document structure
+        System.out.println("\nUpdated Document:");
+        document.display();
     }
 }
 ```
 
-#### Output:
+### Explanation:
+1. **DocumentComponent**: This is the common interface that both leaf nodes (like `Text`, `Image`) and composite nodes (like `Document`) will implement.
+2. **Text and Image**: These are leaf components, representing individual items within a document (e.g., paragraphs, images).
+3. **Document**: This is the composite class, which can hold other `DocumentComponent` instances, including other `Documents`. This allows creating nested structures.
+4. The `display()` method is implemented by both the leaf and composite classes, making it easy to process documents in a uniform way.
+
+### Output:
 ```
-Editing Word Document: Google Docs Content
-Saving Word Document...
-Saving document to Google Drive: Google Docs Content
-Editing Word Document: Dropbox Docs Content
-Saving Word Document...
-Saving document to Dropbox: Dropbox Docs Content
-Editing Spreadsheet: Local Spreadsheet Content
-Saving Spreadsheet Document...
-Saving document locally: Local Spreadsheet Content
+Document Title: My Google Document
+Text: This is the first paragraph of the document.
+Text: This is the second paragraph with more details.
+Image: image1.jpg
+
+Updated Document:
+Document Title: My Google Document
+Text: This is the first paragraph of the document.
+Text: This is the second paragraph with more details.
+Image: image1.jpg
+Document Title: Subdocument
+Text: This is a subdocument with some content.
 ```
 
 ### Conclusion:
+This design pattern allows for flexible document structures that can easily accommodate complex documents, where each document can contain other documents or individual components like text and images. This type of structure is ideal for document management systems like Google Workspace, where different types of content can be combined and treated uniformly.
 
-- **Flexibility and Extensibility**: The Bridge Design Pattern helps in creating flexible systems where the abstraction (document editing) and implementation (storage solutions like Google Drive, Dropbox, etc.) can evolve independently.
-
-- **Adaptability**: If you want to introduce a new document type or add a new storage solution, the Bridge pattern allows you to do so without modifying existing code, promoting the **Open/Closed Principle** (open for extension, closed for modification).
-
-- **Separation of Concerns**: It allows developers to keep the concerns of editing documents and storing them separate, which simplifies the management and maintenance of the code.
-
-This pattern is particularly useful in large systems like Google Workspace where multiple features (editing, saving, sharing) can be easily extended to various platforms.
-
-
+Using the Composite Design Pattern, Google Workspace’s document editing system (like Google Docs) can manage and display complex documents with nested content (e.g., images, text, tables, and sub-documents) in a structured, easy-to-manage way.
 ### Decorator
+
+### Decorator Design Pattern Overview
+
+The **Decorator Design Pattern** is a structural design pattern used to dynamically add new functionality to an object at runtime without altering its structure. The main idea is to "decorate" an object by adding behavior to it through composition, rather than inheritance. This allows for greater flexibility, as new functionality can be added to an object without modifying its class, making the system more scalable and easier to maintain.
+
+Key characteristics of the Decorator Pattern:
+- **Component Interface**: Defines the common interface for both the core object and its decorators.
+- **Concrete Component**: The class that implements the component interface and represents the original object.
+- **Decorator**: A class that wraps the original object and implements the same interface. It adds additional functionality while still passing calls to the original object.
+- **Concrete Decorators**: These are specific implementations of the decorator class that add new behavior or modify existing behavior.
+
+### Why Use the Decorator Design Pattern in Document Management: Google Workspace?
+
+In systems like Google Workspace (Docs, Sheets, etc.), documents often require a variety of dynamic features or behaviors, such as formatting, security features, or real-time collaboration. The Decorator Design Pattern is useful in such contexts for the following reasons:
+
+1. **Dynamic Behavior Addition**: In document management, there could be a need to add functionalities like tracking, access control, or version history to a document. With the decorator pattern, you can add these features dynamically without changing the original document object.
+
+2. **Open/Closed Principle**: The decorator allows you to adhere to the open/closed principle, where the document classes are open for extension but closed for modification. You can keep extending document functionality as needed, without touching the core classes of the system.
+
+3. **Flexibility and Reusability**: You can create various decorators to handle different requirements (e.g., logging, editing, sharing), and they can be composed together as needed, allowing flexibility in different scenarios.
+
+### Example: Decorator Pattern in Learning Management Systems (LMS) - Moodle
+
+Let’s look at how the Decorator Design Pattern can be applied to a Learning Management System (LMS) like **Moodle**. Imagine you have a basic `Assignment` object in Moodle, but you want to extend its functionality to support different features, such as grading, deadline extensions, or plagiarism checks.
+
+#### Key Components:
+1. **Assignment Interface**: Defines the common methods for all types of assignments.
+2. **Concrete Assignment**: Implements the basic functionality for an assignment (e.g., submitting assignments).
+3. **Decorator Classes**: Add features like grading, plagiarism checking, etc.
+4. **Concrete Decorators**: Specific decorators that add particular behaviors.
+
+#### Java Example Code
+
+```java
+// Component: The common interface for Assignment
+interface Assignment {
+    void submit();
+}
+
+// Concrete Component: Basic Assignment
+class BasicAssignment implements Assignment {
+    @Override
+    public void submit() {
+        System.out.println("Assignment submitted.");
+    }
+}
+
+// Decorator: The abstract decorator class
+abstract class AssignmentDecorator implements Assignment {
+    protected Assignment decoratedAssignment;
+
+    public AssignmentDecorator(Assignment decoratedAssignment) {
+        this.decoratedAssignment = decoratedAssignment;
+    }
+
+    public void submit() {
+        decoratedAssignment.submit();  // Call the wrapped assignment's submit method
+    }
+}
+
+// Concrete Decorator 1: Adds Grading functionality
+class GradingDecorator extends AssignmentDecorator {
+    public GradingDecorator(Assignment decoratedAssignment) {
+        super(decoratedAssignment);
+    }
+
+    @Override
+    public void submit() {
+        super.submit(); // Submit the assignment
+        addGrading();
+    }
+
+    private void addGrading() {
+        System.out.println("Grading has been added to the assignment.");
+    }
+}
+
+// Concrete Decorator 2: Adds Plagiarism Check functionality
+class PlagiarismCheckDecorator extends AssignmentDecorator {
+    public PlagiarismCheckDecorator(Assignment decoratedAssignment) {
+        super(decoratedAssignment);
+    }
+
+    @Override
+    public void submit() {
+        super.submit(); // Submit the assignment
+        performPlagiarismCheck();
+    }
+
+    private void performPlagiarismCheck() {
+        System.out.println("Plagiarism check completed.");
+    }
+}
+
+// Concrete Decorator 3: Adds Deadline Extension functionality
+class DeadlineExtensionDecorator extends AssignmentDecorator {
+    public DeadlineExtensionDecorator(Assignment decoratedAssignment) {
+        super(decoratedAssignment);
+    }
+
+    @Override
+    public void submit() {
+        super.submit(); // Submit the assignment
+        extendDeadline();
+    }
+
+    private void extendDeadline() {
+        System.out.println("Deadline has been extended.");
+    }
+}
+
+// Client code
+public class LMS {
+    public static void main(String[] args) {
+        // A basic assignment
+        Assignment basicAssignment = new BasicAssignment();
+
+        // Add grading functionality
+        Assignment gradedAssignment = new GradingDecorator(basicAssignment);
+
+        // Add plagiarism check to the already graded assignment
+        Assignment plagiarizedCheckedAssignment = new PlagiarismCheckDecorator(gradedAssignment);
+
+        // Add deadline extension to the plagiarized checked assignment
+        Assignment finalAssignment = new DeadlineExtensionDecorator(plagiarizedCheckedAssignment);
+
+        // Submit the fully decorated assignment
+        finalAssignment.submit();
+    }
+}
+```
+
+### Explanation:
+
+- **BasicAssignment**: This is the base assignment with basic functionality (submission).
+- **GradingDecorator**: Adds grading functionality to the assignment.
+- **PlagiarismCheckDecorator**: Adds plagiarism checking to the assignment.
+- **DeadlineExtensionDecorator**: Adds functionality for extending the assignment deadline.
+
+The **finalAssignment** object, which has been decorated with all three decorators, will have all the features combined. The decorators are applied in a flexible and reusable way, allowing them to be stacked as needed, without changing the core `Assignment` class.
+
+### Advantages of Using the Decorator Pattern in LMS like Moodle:
+
+1. **Extensibility**: The LMS can easily add new features without modifying existing code. For example, a new decorator can be created to add a feature like `AutoGradingDecorator` without altering other functionality.
+2. **Separation of Concerns**: Each decorator is focused on adding a single responsibility (e.g., grading, plagiarism check), making the code modular and easier to maintain.
+3. **Flexibility**: Users can combine different decorators for assignments depending on the needs of the course. One assignment might need grading and plagiarism checking, while another might just need a deadline extension.
+4. **Open/Closed Principle**: The assignment class itself is not modified. New behaviors are added only by extending the functionality through decorators, ensuring that the system is open for extension but closed for modification.
+
+In summary, the **Decorator Pattern** in the context of a learning management system like Moodle provides an elegant way to extend functionality without changing the core code, offering flexibility and scalability.
 
 ### Facade
 
