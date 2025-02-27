@@ -1610,6 +1610,7 @@ These patterns are concerned with algorithms and the assignment of responsibilit
 
 ### Chain of Responsibility
 
+
 ### Command
 
 ### What is the Command Design Pattern?
@@ -1913,7 +1914,161 @@ In conclusion, the **Iterator Pattern** provides a clear and efficient way to tr
 ### Memento
 
 ### Observer
+### Observer Design Pattern
 
+The **Observer Design Pattern** is a behavioral design pattern where an object (called the **subject**) maintains a list of its dependent objects (called **observers**) and notifies them automatically of any state changes, typically by calling one of their methods. This pattern is often used when an object’s state changes and all dependent objects must be notified and updated accordingly, without needing to tightly couple the classes.
+
+In simple terms:
+- **Subject**: The object that holds the data and notifies observers when the data changes.
+- **Observers**: The objects that need to be informed when the state of the subject changes.
+
+This pattern promotes loose coupling between the subject and the observers. The observers don't need to know much about the subject; they just listen for changes.
+
+### Why Use the Observer Design Pattern in Hospital Management Software?
+
+In a hospital management system, there are various components like OPD (Outpatient Department), IPD (Inpatient Department), billing, bed management, discharge procedures, etc. Each of these components might need to be updated based on the actions in one of them. The **Observer Design Pattern** can help in such scenarios because:
+
+1. **Real-Time Updates**: Different parts of the system (like billing, bed availability, etc.) can be updated in real time when there's a change in a patient's status (e.g., patient discharge or bed allocation).
+
+2. **Loose Coupling**: Instead of directly calling methods in different modules, the observer pattern allows each module to be decoupled. This makes it easier to maintain and extend the software.
+
+3. **Scalability**: As new features (such as additional departments or modules) are added to the system, they can subscribe to the relevant changes without affecting the existing modules.
+
+### Example: Hospital Management System with Observer Pattern
+
+Let's say we have a **Patient** class that needs to notify multiple observers (like **BillingSystem**, **BedBookingSystem**, and **IPDSystem**) when the patient is discharged, transferred, or when their bill is settled.
+
+We can implement this using the **Observer Design Pattern** in Java.
+
+#### Java Code Example
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+// Observer interface
+interface Observer {
+    void update(String message);
+}
+
+// Subject class
+class Patient {
+    private List<Observer> observers = new ArrayList<>();
+    private String status;
+
+    // Register an observer
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    // Unregister an observer
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    // Notify all observers
+    private void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(status);
+        }
+    }
+
+    // Set patient's status and notify observers
+    public void setStatus(String status) {
+        this.status = status;
+        notifyObservers();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+}
+
+// BillingSystem Observer
+class BillingSystem implements Observer {
+    @Override
+    public void update(String message) {
+        if (message.equals("Discharged")) {
+            System.out.println("Billing System: Processing final bill.");
+        }
+    }
+}
+
+// BedBookingSystem Observer
+class BedBookingSystem implements Observer {
+    @Override
+    public void update(String message) {
+        if (message.equals("Discharged")) {
+            System.out.println("Bed Booking System: Updating bed availability.");
+        }
+    }
+}
+
+// IPDSystem Observer
+class IPDSystem implements Observer {
+    @Override
+    public void update(String message) {
+        if (message.equals("Transferred to OPD")) {
+            System.out.println("IPD System: Updating patient status to OPD.");
+        } else if (message.equals("Discharged")) {
+            System.out.println("IPD System: Marking patient as discharged.");
+        }
+    }
+}
+
+public class HospitalManagement {
+    public static void main(String[] args) {
+        // Create a Patient
+        Patient patient = new Patient();
+
+        // Create observers
+        BillingSystem billingSystem = new BillingSystem();
+        BedBookingSystem bedBookingSystem = new BedBookingSystem();
+        IPDSystem ipdSystem = new IPDSystem();
+
+        // Add observers to the patient
+        patient.addObserver(billingSystem);
+        patient.addObserver(bedBookingSystem);
+        patient.addObserver(ipdSystem);
+
+        // Change patient's status and notify all observers
+        System.out.println("Patient status: Transferred to OPD");
+        patient.setStatus("Transferred to OPD");
+
+        System.out.println("\nPatient status: Discharged");
+        patient.setStatus("Discharged");
+    }
+}
+```
+
+### Explanation of the Code:
+
+1. **Observer Interface**: This is an interface that defines the `update` method, which is called to notify observers of changes.
+
+2. **Patient Class (Subject)**: This is the subject class that holds the state (e.g., patient status). It has methods to add, remove, and notify observers. When the patient's status changes, it notifies all registered observers.
+
+3. **Observer Classes**: These are concrete classes (e.g., `BillingSystem`, `BedBookingSystem`, `IPDSystem`) that implement the `Observer` interface. Each of these classes reacts differently to the updates (e.g., process billing, update bed availability, etc.).
+
+4. **Main Program**: In the `HospitalManagement` class, we create a `Patient` object and three observer objects. We add the observers to the patient, and then change the patient's status to trigger notifications to all observers.
+
+### Output:
+
+```
+Patient status: Transferred to OPD
+IPD System: Updating patient status to OPD.
+
+Patient status: Discharged
+Billing System: Processing final bill.
+Bed Booking System: Updating bed availability.
+IPD System: Marking patient as discharged.
+```
+
+### Benefits in Hospital Management Software:
+- **Real-Time Updates**: When a patient's status changes (e.g., discharge, transfer), relevant modules (billing, bed management, IPD) get updated automatically.
+- **Separation of Concerns**: Each module only cares about its own responsibilities (e.g., billing doesn't care about bed management, and vice versa).
+- **Easy to Extend**: New modules (e.g., PharmacySystem, AppointmentSystem) can be added easily without modifying existing code.
+
+In conclusion, the **Observer Design Pattern** is extremely useful in managing complex systems like hospital management software, where multiple parts of the system need to be updated in real-time based on changes in a central object, like a patient's status.
 ### State
 
 ### Strategy
